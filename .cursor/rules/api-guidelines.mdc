@@ -1,5 +1,98 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+# API Guidelines
+
+## API Structure
+
+The application uses Next.js API routes for backend functionality. All API routes are located in the `app/api` directory.
+
+## Route Organization
+
+1. Each feature has its own API route:
+   - [app/api/upload/route.ts](mdc:app/api/upload/route.ts) - Document upload
+   - [app/api/analyze/route.ts](mdc:app/api/analyze/route.ts) - Document analysis
+   - [app/api/review/route.ts](mdc:app/api/review/route.ts) - Document review
+   - [app/api/report/route.ts](mdc:app/api/report/route.ts) - Report generation
+
+## Request Handling
+
+1. All API routes should:
+   - Use proper HTTP methods (GET, POST, PUT, DELETE)
+   - Implement proper error handling
+   - Return appropriate status codes
+   - Use TypeScript for type safety
+   - Validate request data using Zod schemas
+
+2. Response Format:
+   ```typescript
+   {
+     success: boolean;
+     data?: any;
+     error?: {
+       message: string;
+       code: string;
+     };
+   }
+   ```
+
+## Data Validation
+
+1. Use Zod schemas for request validation:
+   ```typescript
+   import { z } from 'zod';
+   
+   const RequestSchema = z.object({
+     // schema definition
+   });
+   ```
+
+2. Validate all incoming requests:
+   ```typescript
+   const result = RequestSchema.safeParse(request.body);
+   if (!result.success) {
+     return Response.json({ error: result.error }, { status: 400 });
+   }
+   ```
+
+## Error Handling
+
+1. Use proper error types:
+   ```typescript
+   interface ApiError {
+     message: string;
+     code: string;
+   }
+   ```
+
+2. Implement proper error responses:
+   ```typescript
+   return Response.json(
+     { error: { message: 'Error message', code: 'ERROR_CODE' } },
+     { status: 400 }
+   );
+   ```
+
+## Security
+
+1. Implement proper authentication
+2. Validate all input data
+3. Use proper CORS settings
+4. Implement rate limiting
+5. Sanitize all output data
+
+## Performance
+
+1. Implement proper caching
+2. Use efficient data structures
+3. Optimize database queries
+4. Implement proper pagination
+
+## Testing
+
+1. Write unit tests for API routes
+2. Test error cases
+3. Test input validation
+4. Test response formats
