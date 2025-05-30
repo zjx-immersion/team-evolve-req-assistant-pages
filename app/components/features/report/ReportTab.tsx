@@ -1,14 +1,37 @@
-import React from "react"
+"use client"
+
+import React, { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { AlertTriangle, ChevronLeft, ChevronRight } from "lucide-react"
+import { ResultsService, ReportStats, RuleIssueMapping } from "@/lib/api/results"
 
 interface ReportTabProps {
-  onBackToResults: () => void; // Add this prop for handling the back action
+  onBackToResults: () => void;
 }
 
 export const ReportTab: React.FC<ReportTabProps> = ({ onBackToResults }) => {
-  const currentDocumentTitle = "智能驾驶系统PRD"; // Example document title
+  const [currentDocumentTitle] = useState("智能驾驶系统PRD");
+  const [reportStats, setReportStats] = useState<ReportStats | null>(null);
+  const [ruleIssueMapping, setRuleIssueMapping] = useState<RuleIssueMapping[]>([]);
+
+  useEffect(() => {
+    const resultsService = ResultsService.getInstance();
+
+    // Get report statistics
+    resultsService.getReportStats().then(response => {
+      if (response.status === 'success' && response.data) {
+        setReportStats(response.data);
+      }
+    });
+
+    // Get rule issue mapping
+    resultsService.getRuleIssueMapping().then(response => {
+      if (response.status === 'success' && response.data) {
+        setRuleIssueMapping(response.data);
+      }
+    });
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -20,19 +43,19 @@ export const ReportTab: React.FC<ReportTabProps> = ({ onBackToResults }) => {
           <div className="space-y-6">
             <div className="grid grid-cols-4 gap-4">
               <div className="text-center p-4 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">8</div>
+                <div className="text-2xl font-bold text-green-600">{reportStats?.solvedIssues || 0}</div>
                 <div className="text-sm text-gray-600">已解决问题</div>
               </div>
               <div className="text-center p-4 bg-yellow-50 rounded-lg">
-                <div className="text-2xl font-bold text-yellow-600">3</div>
+                <div className="text-2xl font-bold text-yellow-600">{reportStats?.pendingIssues || 0}</div>
                 <div className="text-sm text-gray-600">待处理问题</div>
               </div>
               <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">95%</div>
+                <div className="text-2xl font-bold text-blue-600">{reportStats?.documentQuality || 0}%</div>
                 <div className="text-sm text-gray-600">文档质量评分</div>
               </div>
               <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">73%</div>
+                <div className="text-2xl font-bold text-purple-600">{reportStats?.firstConfirmationRate || 0}%</div>
                 <div className="text-sm text-gray-600">一次确认率</div>
               </div>
             </div>
@@ -105,70 +128,21 @@ export const ReportTab: React.FC<ReportTabProps> = ({ onBackToResults }) => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="border border-gray-200 rounded-lg p-4">
-                    <h4 className="font-medium text-gray-900 mb-2">需求完整性检查</h4>
-                    <div className="space-y-2">
-                      <div className="text-sm">
-                        <span className="text-red-600">问题:</span>{" "}
-                        用户场景描述不完整、缺少合规性要求、可靠性要求缺失、安全要求不够全面
-                      </div>
-                      <div className="text-sm">
-                        <span className="text-blue-600">建议:</span>{" "}
-                        补充边缘场景处理方案、添加法规标准要求、完善环境条件要求、扩展安全性要求维度
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="border border-gray-200 rounded-lg p-4">
-                    <h4 className="font-medium text-gray-900 mb-2">需求明确性检查</h4>
-                    <div className="space-y-2">
-                      <div className="text-sm">
-                        <span className="text-red-600">问题:</span>{" "}
-                        缺少具体性能指标、自动泊车激活条件不明确、用户界面交互细节不足
-                      </div>
-                      <div className="text-sm">
-                        <span className="text-blue-600">建议:</span>{" "}
-                        添加量化指标、明确激活条件和限制、补充界面布局和交互细节
+                  {ruleIssueMapping.map((mapping) => (
+                    <div key={mapping.ruleId} className="border border-gray-200 rounded-lg p-4">
+                      <h4 className="font-medium text-gray-900 mb-2">{mapping.ruleName}</h4>
+                      <div className="space-y-2">
+                        <div className="text-sm">
+                          <span className="text-red-600">问题:</span>{" "}
+                          {mapping.issues.join("、")}
+                        </div>
+                        <div className="text-sm">
+                          <span className="text-blue-600">建议:</span>{" "}
+                          {mapping.suggestions.join("、")}
+                        </div>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="border border-gray-200 rounded-lg p-4">
-                    <h4 className="font-medium text-gray-900 mb-2">需求一致性检查</h4>
-                    <div className="space-y-2">
-                      <div className="text-sm">
-                        <span className="text-red-600">问题:</span> 性能指标与安全要求冲突、缺少系统异常处理机制
-                      </div>
-                      <div className="text-sm">
-                        <span className="text-blue-600">建议:</span>{" "}
-                        区分不同功能模块的响应时间要求、添加异常处理机制
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="border border-gray-200 rounded-lg p-4">
-                    <h4 className="font-medium text-gray-900 mb-2">需求可测试性检查</h4>
-                    <div className="space-y-2">
-                      <div className="text-sm">
-                        <span className="text-red-600">问题:</span> 缺少测试验收标准
-                      </div>
-                      <div className="text-sm">
-                        <span className="text-blue-600">建议:</span> 为每项性能指标添加具体的测试方法和验收标准
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="border border-gray-200 rounded-lg p-4">
-                    <h4 className="font-medium text-gray-900 mb-2">需求可追溯性检查</h4>
-                    <div className="space-y-2">
-                      <div className="text-sm">
-                        <span className="text-red-600">问题:</span> 缺少与上层需求的关联
-                      </div>
-                      <div className="text-sm">
-                        <span className="text-blue-600">建议:</span> 添加与上层业务目标或用户需求的关联说明
-                      </div>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>

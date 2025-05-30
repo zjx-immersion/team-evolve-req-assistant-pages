@@ -1,0 +1,78 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# API Patterns
+
+The project follows a consistent pattern for API services and data fetching:
+
+## API Client
+The base API client is implemented in [lib/api/client.ts](mdc:lib/api/client.ts) using axios. It provides:
+- Singleton pattern for client instance
+- Base URL configuration
+- Default headers
+- Error handling
+- GET and POST methods
+
+## API Services
+Each feature has its own API service following these patterns:
+
+### Service Structure
+```typescript
+export class FeatureService {
+  private static instance: FeatureService;
+  private apiClient: ApiClient;
+
+  private constructor() {
+    this.apiClient = ApiClient.getInstance();
+  }
+
+  static getInstance(): FeatureService {
+    if (!FeatureService.instance) {
+      FeatureService.instance = new FeatureService();
+    }
+    return FeatureService.instance;
+  }
+
+  async getData(): Promise<ApiResponse<DataType>> {
+    // Implementation
+  }
+}
+```
+
+### Response Types
+All API responses follow the `ApiResponse` interface from [app/types/api.ts](mdc:app/types/api.ts):
+```typescript
+interface ApiResponse<T> {
+  data?: T;
+  status: 'success' | 'error';
+  message?: string;
+}
+```
+
+## Data Fetching in Components
+Components follow this pattern for data fetching:
+1. Use `useState` for data storage
+2. Use `useEffect` for initial data loading
+3. Call service methods and handle responses
+4. Update state with response data
+
+Example:
+```typescript
+const [data, setData] = useState<DataType[]>([]);
+
+useEffect(() => {
+  const service = FeatureService.getInstance();
+  service.getData().then(response => {
+    if (response.status === 'success' && response.data) {
+      setData(response.data);
+    }
+  });
+}, []);
+```
+
+## Error Handling
+- API errors are caught and transformed into `ApiResponse` objects
+- Components handle error states appropriately
+- Error messages are displayed to users when necessary

@@ -6,33 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Brain, Pause, Play, RotateCcw, Plus, Settings, AlertTriangle, MessageSquare, Clock, CheckCircle } from "lucide-react"
-
-interface AssessmentRule {
-  id: string
-  title: string
-  description: string
-  category: string
-  severity: "high" | "medium" | "low"
-  enabled: boolean
-}
-
-interface AnalysisStep {
-  id: string
-  title: string
-  description: string
-  status: "pending" | "in-progress" | "completed" | "skipped"
-  progress: number
-}
-
-interface ReviewIssue {
-  id: string
-  type: "error" | "warning" | "suggestion"
-  title: string
-  description: string
-  section: string
-  sectionTitle: string
-  suggestion: string
-}
+import { AnalysisService, AssessmentRule, AnalysisStep, ReviewIssue } from "@/lib/api/analysis"
 
 interface AnalysisTabProps {
   onResetWorkflow: () => void
@@ -48,91 +22,27 @@ export function AnalysisTab({ onResetWorkflow, onCompleteAnalysis }: AnalysisTab
   const [currentAnalysisStep, setCurrentAnalysisStep] = useState<string>("")
   const [realTimeResults, setRealTimeResults] = useState<ReviewIssue[]>([])
 
-  const [assessmentRules, setAssessmentRules] = useState<AssessmentRule[]>([
-    {
-      id: "rule1",
-      title: "需求完整性检查",
-      description: "检查需求是否包含完整的功能描述、性能指标和验收标准",
-      category: "完整性",
-      severity: "high",
-      enabled: true,
-    },
-    {
-      id: "rule2",
-      title: "需求一致性检查",
-      description: "检查需求内部是否存在矛盾或冲突",
-      category: "一致性",
-      severity: "high",
-      enabled: true,
-    },
-    {
-      id: "rule3",
-      title: "需求可测试性检查",
-      description: "检查需求是否可以被测试验证",
-      category: "可测试性",
-      severity: "medium",
-      enabled: true,
-    },
-    {
-      id: "rule4",
-      title: "需求可追溯性检查",
-      description: "检查需求是否可以追溯到上层需求或业务目标",
-      category: "可追溯性",
-      severity: "medium",
-      enabled: true,
-    },
-    {
-      id: "rule5",
-      title: "需求明确性检查",
-      description: "检查需求描述是否清晰明确，避免模糊表述",
-      category: "明确性",
-      severity: "high",
-      enabled: true,
-    },
-  ])
+  const [assessmentRules, setAssessmentRules] = useState<AssessmentRule[]>([])
+  const [analysisSteps, setAnalysisSteps] = useState<AnalysisStep[]>([])
 
-  const [analysisSteps, setAnalysisSteps] = useState<AnalysisStep[]>([
-    { id: "step1", title: "文档解析", description: "解析文档结构和内容", status: "completed", progress: 100 },
-    { id: "step2", title: "需求提取", description: "提取文档中的需求项", status: "completed", progress: 100 },
-    { id: "step3", title: "规则加载", description: "加载评估规则库", status: "completed", progress: 100 },
-    { id: "step4", title: "完整性评估", description: "评估需求的完整性", status: "in-progress", progress: 65 },
-    { id: "step5", title: "一致性评估", description: "评估需求的一致性", status: "pending", progress: 0 },
-    { id: "step6", title: "可测试性评估", description: "评估需求的可测试性", status: "pending", progress: 0 },
-    { id: "step7", title: "可追溯性评估", description: "评估需求的可追溯性", status: "pending", progress: 0 },
-    { id: "step8", title: "明确性评估", description: "评估需求的明确性", status: "pending", progress: 0 },
-    { id: "step9", title: "生成评估报告", description: "生成最终评估报告", status: "pending", progress: 0 },
-  ])
+  // 初始化数据
+  useEffect(() => {
+    const analysisService = AnalysisService.getInstance();
+    
+    // 获取评估规则
+    analysisService.getAssessmentRules().then(response => {
+      if (response.status === 'success' && response.data) {
+        setAssessmentRules(response.data);
+      }
+    });
 
-  // Predefined review issues
-  const reviewIssuesData: ReviewIssue[] = [
-    {
-      id: "rt1",
-      type: "error",
-      title: "缺少具体的性能指标",
-      description: "当前PRD中对智能驾驶系统的性能指标描述不够具体，建议添加量化指标如响应时间、准确率等。",
-      section: "section-3-2",
-      sectionTitle: "3.2 系统性能要求",
-      suggestion: "系统响应时间应不超过100ms，目标识别准确率应达到98%以上，系统稳定性应确保99.9%的可用性。",
-    },
-    {
-      id: "rt2",
-      type: "warning",
-      title: "用户场景描述不完整",
-      description: "用户场景描述过于简略，缺少极端情况和边缘案例的考虑。",
-      section: "section-2-2",
-      sectionTitle: "2.2 用户调研",
-      suggestion: "建议补充恶劣天气、复杂路况等边缘场景的处理方案。",
-    },
-    {
-      id: "rt3",
-      type: "suggestion",
-      title: "缺少合规性要求",
-      description: "未明确提及智能驾驶相关的法规标准要求。",
-      section: "section-4-1",
-      sectionTitle: "4.1 法规要求",
-      suggestion: "建议添加ISO 26262功能安全标准、国标等相关法规要求。",
-    },
-  ]
+    // 获取分析步骤
+    analysisService.getAnalysisSteps().then(response => {
+      if (response.status === 'success' && response.data) {
+        setAnalysisSteps(response.data);
+      }
+    });
+  }, []);
 
   // Handle starting analysis
   const handleStartAnalysis = () => {
@@ -155,8 +65,9 @@ export function AnalysisTab({ onResetWorkflow, onCompleteAnalysis }: AnalysisTab
     // Simulate analysis progress
     let progress = 0
     let resultIndex = 0
-    let stepIndex = 0
+    let currentStepIndex = 0
     const sections = ["section-1", "section-2-1", "section-2-2", "section-3-1", "section-3-2", "section-4-1"]
+    const analysisService = AnalysisService.getInstance();
 
     const interval = setInterval(() => {
       if (isPaused) return
@@ -165,11 +76,11 @@ export function AnalysisTab({ onResetWorkflow, onCompleteAnalysis }: AnalysisTab
       setUploadProgress(progress)
 
       // Update current section being reviewed
-      if (progress % 15 === 0 && stepIndex < analysisSteps.length) {
+      if (progress % 15 === 0) {
         // Update current step progress
         setAnalysisSteps((steps) =>
           steps.map((step, idx) => {
-            if (idx === stepIndex) {
+            if (idx === currentStepIndex) {
               return { ...step, progress: Math.min(step.progress + 20, 100) }
             }
             return step
@@ -177,30 +88,44 @@ export function AnalysisTab({ onResetWorkflow, onCompleteAnalysis }: AnalysisTab
         )
 
         // Move to next step if current step is complete
-        if (progress % 30 === 0 && stepIndex < analysisSteps.length - 1) {
+        if (progress % 30 === 0 && currentStepIndex < analysisSteps.length - 1) {
           setAnalysisSteps((steps) =>
             steps.map((step, idx) => {
-              if (idx === stepIndex) {
+              if (idx === currentStepIndex) {
                 return { ...step, status: "completed", progress: 100 }
               }
-              if (idx === stepIndex + 1) {
+              if (idx === currentStepIndex + 1) {
                 return { ...step, status: "in-progress", progress: 0 }
               }
               return step
             }),
           )
-          stepIndex++
-          setCurrentAnalysisStep(`step${stepIndex + 1}`)
+          currentStepIndex++
+          setCurrentAnalysisStep(`step${currentStepIndex + 1}`)
         }
 
-        setCurrentReviewSection(sections[Math.min(Math.floor(progress / 15) % sections.length, sections.length - 1)])
-        setReviewProgress(Math.floor((progress / 100) * 100))
+        // Update review section and progress
+        const currentSection = sections[Math.min(Math.floor(progress / 15) % sections.length, sections.length - 1)]
+        const currentProgress = Math.floor((progress / 100) * 100)
+        setCurrentReviewSection(currentSection)
+        setReviewProgress(currentProgress)
+
+        // Call API to update progress
+        analysisService.updateAnalysisProgress("doc1", progress, currentStepIndex).then(response => {
+          if (response.status === 'success' && response.data) {
+            console.log('Progress updated:', response.data);
+          }
+        });
       }
 
       // Add results progressively
-      if (progress >= 30 && resultIndex < reviewIssuesData.length && progress % 10 === 0) {
-        setRealTimeResults((prev) => [...prev, reviewIssuesData[resultIndex]])
-        resultIndex++
+      if (progress >= 30 && resultIndex < 3 && progress % 10 === 0) {
+        analysisService.getReviewIssues().then(response => {
+          if (response.status === 'success' && response.data) {
+            setRealTimeResults(prev => [...prev, response.data[resultIndex]]);
+            resultIndex++;
+          }
+        });
       }
 
       if (progress >= 100) {

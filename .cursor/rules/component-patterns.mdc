@@ -1,0 +1,98 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Component Patterns
+
+The project follows consistent patterns for React components:
+
+## Feature Components
+Feature components are organized in the `app/components/features/` directory, with each feature having its own subdirectory. They follow these patterns:
+
+### Component Structure
+```typescript
+"use client"
+
+import React, { useEffect, useState } from "react"
+import { ComponentProps } from "@/app/types/component"
+import { FeatureService } from "@/lib/api/feature"
+
+export const FeatureComponent: React.FC<FeatureProps> = ({ onNext, onBack }) => {
+  // State management
+  const [data, setData] = useState<DataType[]>([])
+
+  // Data fetching
+  useEffect(() => {
+    const service = FeatureService.getInstance()
+    service.getData().then(response => {
+      if (response.status === 'success' && response.data) {
+        setData(response.data)
+      }
+    })
+  }, [])
+
+  // Event handlers
+  const handleAction = () => {
+    // Implementation
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Component content */}
+    </div>
+  )
+}
+```
+
+### Common Patterns
+1. Use "use client" directive for client components
+2. Props interface for component properties
+3. State management with useState
+4. Data fetching with useEffect
+5. Event handlers for user interactions
+6. Consistent className patterns for styling
+
+## UI Components
+Common UI components are located in `components/ui/` and follow these patterns:
+
+### Component Structure
+```typescript
+import * as React from "react"
+import { cn } from "@/lib/utils"
+
+export interface ComponentProps extends React.HTMLAttributes<HTMLDivElement> {
+  // Component-specific props
+}
+
+export const Component = React.forwardRef<HTMLDivElement, ComponentProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn("base-styles", className)}
+        {...props}
+      />
+    )
+  }
+)
+```
+
+### Styling Patterns
+1. Use Tailwind CSS for styling
+2. Consistent spacing with space-y-6
+3. Card-based layouts
+4. Responsive design patterns
+5. Consistent color schemes
+
+## State Management
+1. Local state with useState
+2. API services for data fetching
+3. Props for component communication
+4. Event handlers for user interactions
+
+## Error Handling
+1. Error states in components
+2. Loading states for async operations
+3. User feedback for actions
+4. Error boundaries where appropriate
