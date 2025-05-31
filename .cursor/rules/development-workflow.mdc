@@ -1,5 +1,98 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+# Development Workflow
+
+## Git Workflow
+
+1. Branch Strategy:
+   - `main`: Production-ready code
+   - `develop`: Development branch
+   - Feature branches: `feature/*`
+   - Bug fix branches: `fix/*`
+   - Release branches: `release/*`
+
+2. Commit Guidelines:
+   - Use conventional commits format:
+     ```
+     type(scope): description
+     ```
+   - Types:
+     - `feat`: New feature
+     - `fix`: Bug fix
+     - `docs`: Documentation changes
+     - `style`: Code style changes
+     - `refactor`: Code refactoring
+     - `test`: Adding or modifying tests
+     - `chore`: Maintenance tasks
+
+3. Pull Request Process:
+   - Create feature branch from `develop`
+   - Write clear PR description
+   - Link related issues
+   - Request code review
+   - Pass CI/CD checks
+   - Merge to `develop`
+
+## Development Process
+
+1. Local Development:
+   - Use `npm run dev` for local development
+   - Follow TypeScript best practices
+   - Write tests for new features
+   - Update documentation
+
+2. Code Review:
+   - Review code style and conventions
+   - Check for potential bugs
+   - Verify test coverage
+   - Ensure documentation is updated
+
+3. Testing:
+   - Write unit tests for components
+   - Write integration tests for features
+   - Run tests before committing
+   - Maintain good test coverage
+
+4. Documentation:
+   - Update README.md for major changes
+   - Document new features
+   - Update API documentation
+   - Keep Cursor rules up to date
+
+## Environment Setup
+
+1. Required Tools:
+   - Node.js (v18 or later)
+   - npm (v9 or later)
+   - Git
+   - GitHub CLI
+
+2. Development Environment:
+   - VS Code with recommended extensions
+   - ESLint for code linting
+   - Prettier for code formatting
+   - TypeScript for type checking
+
+3. Environment Variables:
+   - Create `.env.local` for local development
+   - Use `.env.example` as template
+   - Never commit sensitive data
+
+## CI/CD Pipeline
+
+1. GitHub Actions:
+   - Run on push to main branches
+   - Run on pull requests
+   - Check code style
+   - Run tests
+   - Build application
+   - Deploy to staging/production
+
+2. Deployment:
+   - Automatic deployment to staging
+   - Manual approval for production
+   - Version tagging
+   - Release notes generation

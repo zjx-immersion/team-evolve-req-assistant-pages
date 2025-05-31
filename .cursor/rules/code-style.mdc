@@ -1,5 +1,136 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+# Code Style Guidelines
+
+## TypeScript Guidelines
+
+1. Type Definitions:
+   - Use interfaces for object types
+   - Use type aliases for unions and intersections
+   - Export types from dedicated type files
+   - Use Zod for runtime validation
+
+2. Naming Conventions:
+   - Use PascalCase for components and types
+   - Use camelCase for variables and functions
+   - Use UPPER_CASE for constants
+   - Use kebab-case for file names
+
+3. Component Structure:
+   ```typescript
+   // Imports
+   import { useState } from 'react'
+   import type { Props } from './types'
+   
+   // Component
+   export function ComponentName({ prop1, prop2 }: Props) {
+     // State
+     const [state, setState] = useState()
+     
+     // Effects
+     useEffect(() => {
+       // Effect logic
+     }, [])
+     
+     // Handlers
+     const handleEvent = () => {
+       // Handler logic
+     }
+     
+     // Render
+     return (
+       <div>
+         {/* JSX */}
+       </div>
+     )
+   }
+   ```
+
+## React Best Practices
+
+1. Component Organization:
+   - One component per file
+   - Co-locate related components
+   - Use index files for exports
+   - Keep components focused and small
+
+2. State Management:
+   - Use local state for component-specific data
+   - Use context for shared state
+   - Keep state as close as possible to usage
+   - Use proper TypeScript types
+
+3. Props:
+   - Use TypeScript interfaces
+   - Document complex props
+   - Use default props when appropriate
+   - Destructure props in parameters
+
+4. Hooks:
+   - Follow hooks naming convention
+   - Keep hooks focused and reusable
+   - Use proper dependency arrays
+   - Handle cleanup in useEffect
+
+## CSS and Styling
+
+1. Tailwind CSS:
+   - Use utility classes
+   - Follow responsive design patterns
+   - Use consistent spacing
+   - Maintain color consistency
+
+2. Component Styling:
+   - Use CSS modules for component styles
+   - Follow BEM naming convention
+   - Keep styles scoped to components
+   - Use CSS variables for theming
+
+3. Responsive Design:
+   - Use mobile-first approach
+   - Test on multiple devices
+   - Use responsive utilities
+   - Maintain consistent breakpoints
+
+## Error Handling
+
+1. TypeScript:
+   - Use proper error types
+   - Handle null and undefined
+   - Use type guards
+   - Validate data with Zod
+
+2. React:
+   - Use error boundaries
+   - Handle loading states
+   - Show user-friendly errors
+   - Log errors properly
+
+3. API:
+   - Handle network errors
+   - Validate responses
+   - Show appropriate messages
+   - Retry failed requests
+
+## Performance
+
+1. React:
+   - Use React.memo for expensive components
+   - Optimize re-renders
+   - Use proper keys in lists
+   - Lazy load components
+
+2. Data Fetching:
+   - Use proper caching
+   - Implement pagination
+   - Optimize queries
+   - Handle loading states
+
+3. Assets:
+   - Optimize images
+   - Use proper formats
+   - Implement lazy loading
+   - Use CDN when possible

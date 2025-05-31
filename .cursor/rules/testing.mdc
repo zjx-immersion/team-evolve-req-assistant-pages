@@ -1,5 +1,137 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
+# Testing Guidelines
+
+## Testing Strategy
+
+1. Test Types:
+   - Unit Tests: Test individual components and functions
+   - Integration Tests: Test component interactions
+   - End-to-End Tests: Test complete user flows
+   - API Tests: Test API endpoints
+
+2. Testing Tools:
+   - Jest: Test runner and assertion library
+   - React Testing Library: Component testing
+   - Cypress: End-to-end testing
+   - MSW: API mocking
+
+## Component Testing
+
+1. Test Structure:
+   ```typescript
+   import { render, screen } from '@testing-library/react'
+   import { Component } from './Component'
+   
+   describe('Component', () => {
+     it('should render correctly', () => {
+       render(<Component />)
+       expect(screen.getByText('Expected Text')).toBeInTheDocument()
+     })
+   
+     it('should handle user interactions', () => {
+       render(<Component />)
+       const button = screen.getByRole('button')
+       fireEvent.click(button)
+       expect(screen.getByText('Updated Text')).toBeInTheDocument()
+     })
+   })
+   ```
+
+2. Testing Best Practices:
+   - Test component rendering
+   - Test user interactions
+   - Test state changes
+   - Test error states
+   - Test loading states
+
+## API Testing
+
+1. Mock Service Worker:
+   ```typescript
+   import { rest } from 'msw'
+   import { setupServer } from 'msw/node'
+   
+   const server = setupServer(
+     rest.get('/api/data', (req, res, ctx) => {
+       return res(ctx.json({ data: 'test' }))
+     })
+   )
+   ```
+
+2. API Test Cases:
+   - Test successful responses
+   - Test error responses
+   - Test loading states
+   - Test retry logic
+
+## Test Organization
+
+1. File Structure:
+   ```
+   __tests__/
+     components/
+       Component.test.tsx
+     api/
+       api.test.ts
+     utils/
+       utils.test.ts
+   ```
+
+2. Test Naming:
+   - Use descriptive test names
+   - Follow the pattern: `should do something when condition`
+   - Group related tests in describe blocks
+   - Use it/test for individual test cases
+
+## Test Coverage
+
+1. Coverage Requirements:
+   - Minimum 80% coverage
+   - Focus on critical paths
+   - Test edge cases
+   - Test error handling
+
+2. Coverage Reports:
+   - Generate coverage reports
+   - Review coverage regularly
+   - Address coverage gaps
+   - Document uncovered code
+
+## E2E Testing
+
+1. Cypress Tests:
+   ```typescript
+   describe('User Flow', () => {
+     it('should complete the workflow', () => {
+       cy.visit('/')
+       cy.get('[data-testid="upload-button"]').click()
+       cy.get('[data-testid="file-input"]').attachFile('document.pdf')
+       cy.get('[data-testid="submit-button"]').click()
+       cy.get('[data-testid="success-message"]').should('be.visible')
+     })
+   })
+   ```
+
+2. E2E Test Cases:
+   - Test critical user flows
+   - Test form submissions
+   - Test navigation
+   - Test error scenarios
+
+## Test Maintenance
+
+1. Regular Updates:
+   - Update tests with new features
+   - Remove obsolete tests
+   - Refactor test code
+   - Keep test data current
+
+2. Performance:
+   - Optimize test execution
+   - Use proper test data
+   - Clean up after tests
+   - Mock external dependencies
