@@ -17,19 +17,75 @@ export class DocumentService {
     return DocumentService.instance;
   }
 
-  async uploadDocument(file: File): Promise<ApiResponse<UploadResponse>> {
-    const formData = new FormData();
-    formData.append('file', file);
+  async getDocuments(): Promise<ApiResponse<Document[]>> {
+    try {
+      const response = await this.apiClient.get<Document[]>('documents');
+      return {
+        status: 'success',
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error fetching documents:', error);
+      return {
+        status: 'error',
+        message: error instanceof Error ? error.message : '获取文档列表失败',
+        data: null
+      };
+    }
+  }
 
-    return this.apiClient.post<UploadResponse>('/documents/upload', formData);
+  async uploadDocument(file: File): Promise<ApiResponse<UploadResponse>> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await this.apiClient.post<UploadResponse>('documents/upload', formData);
+      return {
+        status: 'success',
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Upload document error:', error);
+      return {
+        status: 'error',
+        message: error instanceof Error ? error.message : '上传文档失败',
+        data: null
+      };
+    }
   }
 
   async getUploadProgress(documentId: string): Promise<ApiResponse<UploadProgress>> {
-    return this.apiClient.get<UploadProgress>(`/documents/${documentId}/progress`);
+    try {
+      const response = await this.apiClient.get<UploadProgress>(`documents/${documentId}/progress`);
+      return {
+        status: 'success',
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error getting upload progress:', error);
+      return {
+        status: 'error',
+        message: error instanceof Error ? error.message : '获取上传进度失败',
+        data: null
+      };
+    }
   }
 
   async getDocument(documentId: string): Promise<ApiResponse<Document>> {
-    return this.apiClient.get<Document>(`/documents/${documentId}`);
+    try {
+      const response = await this.apiClient.get<Document>(`documents/${documentId}`);
+      return {
+        status: 'success',
+        data: response.data
+      };
+    } catch (error) {
+      console.error('Error getting document:', error);
+      return {
+        status: 'error',
+        message: error instanceof Error ? error.message : '获取文档失败',
+        data: null
+      };
+    }
   }
 
   // 临时模拟数据，后续会移除

@@ -7,7 +7,7 @@ export function Header() {
         <div className="flex items-center space-x-4">
           <h1 className="text-2xl font-bold text-gray-900">Team Evolve</h1>
           <Badge variant="secondary">需求助手</Badge>
-          <span className="text-sm text-gray-500">TTPO</span>
+          <span className="text-sm text-gray-500">Agent-PO</span>
         </div>
         <div className="flex items-center space-x-4">
           <span className="text-sm text-gray-600">AI能力技能等级, 当前AI需求评估</span>

@@ -12,11 +12,16 @@ import { useDocumentStore } from "@/app/store/documentStore"
 interface UploadTabProps {
   onStartAnalysis: (docId: string) => void
   onDocumentSelect: (docId: string) => void
-  onCompleteUpload: () => void
+  onCompleteUpload?: () => void
 }
 
-export function UploadTab({ onStartAnalysis, onDocumentSelect, onCompleteUpload }: UploadTabProps) {
+export function UploadTab({
+  onStartAnalysis,
+  onDocumentSelect,
+  onCompleteUpload = () => {},
+}: UploadTabProps) {
   const [isDragging, setIsDragging] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
   const { 
     documents,
     currentDocument,
@@ -25,57 +30,91 @@ export function UploadTab({ onStartAnalysis, onDocumentSelect, onCompleteUpload 
     error,
     uploadDocument,
     clearError,
-    fetchDocuments
+    fetchDocuments,
+    setError
   } = useDocumentStore()
 
   // 组件加载时获取文档列表
   useEffect(() => {
-    fetchDocuments()
+    setIsMounted(true)
+    fetchDocuments().catch(console.error)
+    return () => {
+      setIsMounted(false)
+    }
   }, [fetchDocuments])
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     setIsDragging(true)
   }, [])
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     setIsDragging(false)
   }, [])
 
   const handleDrop = useCallback(async (e: React.DragEvent) => {
     e.preventDefault()
+    e.stopPropagation()
     setIsDragging(false)
     clearError()
+
+    if (!isMounted) return
 
     const files = e.dataTransfer.files
     if (files.length > 0) {
       const file = files[0]
-      if (file.type === "application/pdf" || file.type === "application/msword" || file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-        await uploadDocument(file)
+      if (file.type === "application/msword" || file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+        try {
+          await uploadDocument(file)
+        } catch (err) {
+          console.error('Upload error:', err)
+          setError(err instanceof Error ? err.message : '上传失败，请重试')
+        }
       } else {
-        clearError()
-        // 这里可以添加错误提示
+        setError('仅支持 Word 文档格式')
       }
     }
-  }, [uploadDocument, clearError])
+  }, [uploadDocument, clearError, setError, isMounted])
 
   const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    clearError()
+
+    if (!isMounted) return
+
     const files = e.target.files
     if (files && files.length > 0) {
       const file = files[0]
-      if (file.type === "application/pdf" || file.type === "application/msword" || file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-        await uploadDocument(file)
+      if (file.type === "application/msword" || file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+        try {
+          await uploadDocument(file)
+        } catch (err) {
+          console.error('Upload error:', err)
+          setError(err instanceof Error ? err.message : '上传失败，请重试')
+        }
       } else {
-        clearError()
-        // 这里可以添加错误提示
+        setError('仅支持 Word 文档格式')
       }
     }
-  }, [uploadDocument, clearError])
+  }, [uploadDocument, clearError, setError, isMounted])
 
   // 当上传完成时，自动进入下一步
-  if (uploadProgress?.status === 'completed' && currentDocument) {
-    onCompleteUpload()
+  useEffect(() => {
+    if (
+      isMounted &&
+      uploadProgress?.status === 'completed' &&
+      currentDocument &&
+      typeof onCompleteUpload === 'function'
+    ) {
+      onCompleteUpload();
+    }
+  }, [uploadProgress?.status, currentDocument, onCompleteUpload, isMounted])
+
+  if (!isMounted) {
+    return null
   }
 
   return (
@@ -103,12 +142,15 @@ export function UploadTab({ onStartAnalysis, onDocumentSelect, onCompleteUpload 
             </div>
             <div className="space-y-2">
               <h3 className="text-lg font-medium text-gray-900">拖拽文件到此处</h3>
-              <p className="text-sm text-gray-500">支持 PDF、Word 格式</p>
+              <p className="text-sm text-gray-500">支持 Word 格式</p>
             </div>
             <div className="flex justify-center">
               <Button
                 variant="outline"
-                onClick={() => document.getElementById("file-upload")?.click()}
+                onClick={(e) => {
+                  e.preventDefault()
+                  document.getElementById("file-upload")?.click()
+                }}
                 disabled={isLoading}
               >
                 选择文件
@@ -117,12 +159,21 @@ export function UploadTab({ onStartAnalysis, onDocumentSelect, onCompleteUpload 
                 id="file-upload"
                 type="file"
                 className="hidden"
-                accept=".pdf,.doc,.docx"
+                accept=".doc,.docx"
                 onChange={handleFileSelect}
               />
             </div>
           </div>
         </div>
+
+        {error && (
+          <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
+            <div className="flex items-center space-x-2">
+              <AlertCircle className="w-5 h-5 text-red-500" />
+              <span className="text-sm text-red-700">{error}</span>
+            </div>
+          </div>
+        )}
 
         {isLoading && (
           <div className="mt-6 space-y-4">
@@ -131,15 +182,9 @@ export function UploadTab({ onStartAnalysis, onDocumentSelect, onCompleteUpload 
               <span className="text-sm text-gray-500">{uploadProgress?.progress || 0}%</span>
             </div>
             <Progress value={uploadProgress?.progress || 0} className="h-2" />
-          </div>
-        )}
-
-        {error && (
-          <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
-            <div className="flex items-center space-x-2">
-              <AlertCircle className="w-5 h-5 text-red-500" />
-              <span className="text-sm text-red-700">{error}</span>
-            </div>
+            {uploadProgress?.message && (
+              <p className="text-sm text-gray-500">{uploadProgress.message}</p>
+            )}
           </div>
         )}
 
