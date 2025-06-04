@@ -3,3 +3,273 @@ description:
 globs:
 alwaysApply: false
 ---
+# Git 命令速查表
+
+## 常用别名 (oh-my-zsh)
+
+1. 基础命令别名：
+   ```bash
+   gst = git status
+   ga = git add
+   gaa = git add --all
+   gap = git add --patch
+   gc = git commit
+   gcm = git commit -m
+   gco = git checkout
+   gcb = git checkout -b
+   gb = git branch
+   gba = git branch -a
+   gl = git pull
+   gp = git push
+   ```
+
+2. 日志和差异：
+   ```bash
+   glog = git log --oneline --decorate --graph
+   gloga = git log --oneline --decorate --graph --all
+   gd = git diff
+   gdc = git diff --cached
+   ```
+
+3. 暂存和重置：
+   ```bash
+   gsta = git stash
+   gstp = git stash pop
+   gstl = git stash list
+   grh = git reset HEAD
+   grhh = git reset HEAD --hard
+   ```
+
+4. 合并和变基：
+   ```bash
+   gm = git merge
+   grb = git rebase
+   grbi = git rebase -i
+   ```
+
+5. 远程操作：
+   ```bash
+   gr = git remote
+   grv = git remote -v
+   gra = git remote add
+   grrm = git remote remove
+   ```
+
+## 基础命令
+
+1. 仓库操作：
+   ```bash
+   # 初始化仓库
+   git init
+   
+   # 克隆仓库
+   git clone <url>
+   
+   # 添加远程仓库
+   git remote add origin <url>
+   
+   # 查看远程仓库
+   git remote -v
+   ```
+
+2. 分支操作：
+   ```bash
+   # 查看分支
+   git branch
+   git branch -a  # 查看所有分支
+   
+   # 创建分支
+   git branch <branch-name>
+   git checkout -b <branch-name>  # 创建并切换
+   
+   # 切换分支
+   git checkout <branch-name>
+   git switch <branch-name>  # 新版命令
+   
+   # 删除分支
+   git branch -d <branch-name>  # 安全删除
+   git branch -D <branch-name>  # 强制删除
+   ```
+
+3. 提交操作：
+   ```bash
+   # 查看状态
+   git status
+   git status -s  # 简洁模式
+   
+   # 添加文件
+   git add <file>
+   git add .  # 添加所有
+   git add -p  # 交互式添加
+   
+   # 提交更改
+   git commit -m "message"
+   git commit -am "message"  # 添加并提交
+   git commit --amend  # 修改最后一次提交
+   ```
+
+4. 同步操作：
+   ```bash
+   # 拉取更新
+   git pull
+   git pull origin <branch>
+   git pull --rebase  # 变基式拉取
+   
+   # 推送更新
+   git push
+   git push origin <branch>
+   git push -u origin <branch>  # 设置上游
+   git push --force  # 强制推送（谨慎使用）
+   ```
+
+## 高级操作
+
+1. 暂存操作：
+   ```bash
+   # 暂存当前更改
+   git stash
+   git stash save "message"
+   
+   # 查看暂存列表
+   git stash list
+   
+   # 应用暂存
+   git stash apply  # 保留暂存
+   git stash pop  # 应用并删除
+   
+   # 删除暂存
+   git stash drop
+   git stash clear  # 清空所有
+   ```
+
+2. 合并操作：
+   ```bash
+   # 合并分支
+   git merge <branch>
+   git merge --no-ff <branch>  # 保留分支历史
+   
+   # 变基操作
+   git rebase <branch>
+   git rebase -i HEAD~3  # 交互式变基
+   
+   # 解决冲突
+   git status  # 查看冲突文件
+   git add <file>  # 解决后添加
+   git commit  # 完成合并
+   ```
+
+3. 查看历史：
+   ```bash
+   # 查看提交历史
+   git log
+   git log --oneline  # 简洁模式
+   git log --graph  # 图形化显示
+   
+   # 查看文件历史
+   git log -p <file>
+   git blame <file>  # 逐行查看
+   ```
+
+4. 撤销操作：
+   ```bash
+   # 撤销工作区更改
+   git checkout -- <file>
+   git restore <file>  # 新版命令
+   
+   # 撤销暂存区
+   git reset HEAD <file>
+   git restore --staged <file>  # 新版命令
+   
+   # 撤销提交
+   git reset --soft HEAD^  # 保留更改
+   git reset --hard HEAD^  # 丢弃更改
+   ```
+
+## 最佳实践
+
+1. 提交规范：
+   ```
+   type(scope): subject
+   
+   body
+   
+   footer
+   ```
+   - type: feat, fix, docs, style, refactor, test, chore
+   - scope: 影响范围
+   - subject: 简短描述
+   - body: 详细说明
+   - footer: 相关 issue
+
+2. 分支命名：
+   - feature/*: 新功能
+   - fix/*: 修复
+   - docs/*: 文档
+   - refactor/*: 重构
+   - test/*: 测试
+   - chore/*: 维护
+
+3. 工作流程：
+   ```bash
+   # 1. 更新主分支
+   git checkout main
+   git pull
+   
+   # 2. 创建功能分支
+   git checkout -b feature/new-feature
+   
+   # 3. 开发并提交
+   git add .
+   git commit -m "feat: add new feature"
+   
+   # 4. 同步主分支
+   git checkout main
+   git pull
+   git checkout feature/new-feature
+   git rebase main
+   
+   # 5. 推送并创建 PR
+   git push -u origin feature/new-feature
+   ```
+
+4. 常用别名：
+   ```bash
+   # 添加到 ~/.gitconfig
+   [alias]
+   st = status
+   co = checkout
+   br = branch
+   ci = commit
+   unstage = reset HEAD --
+   last = log -1 HEAD
+   visual = !gitk
+   ```
+
+## 自定义别名
+
+你可以在 `~/.zshrc` 中添加自定义别名：
+
+```bash
+# 添加到 ~/.zshrc
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git pull'
+alias gd='git diff'
+alias gco='git checkout'
+alias gb='git branch'
+alias gst='git stash'
+alias gsp='git stash pop'
+```
+
+然后运行 `source ~/.zshrc` 使配置生效。
+
+## 使用技巧
+
+1. 使用 `gst` 快速查看状态
+2. 使用 `ga` 添加单个文件，`gaa` 添加所有文件
+3. 使用 `gcm "message"` 快速提交
+4. 使用 `gco -b feature/new` 快速创建并切换分支
+5. 使用 `glog` 查看图形化提交历史
+6. 使用 `gst` 和 `gsp` 快速暂存和恢复更改
